@@ -1,10 +1,12 @@
 # Outboss
 
+Outboss is an outreach workspace for managing contacts, email campaigns and replies, built with Laravel and Vue.
+
 Outreach loses context when the person, the campaign and the reply live in different places. Outboss keeps them in one workspace: who someone is, what has already been said and what should happen next.
 
 The product follows the work around an email. Prepare an audience, write the campaign, review exactly what will be sent, then handle replies and follow-ups from one inbox.
 
-![Unified inbox with synthetic conversations](docs/screens/inbox.png)
+![Unified inbox with sample conversations](docs/screens/inbox.png)
 
 ## Keep the next step connected
 
@@ -20,7 +22,7 @@ Sending has limits too: pacing, suppression and recovery rules sit behind the wo
 
 ## Take a look around
 
-The local demo uses synthetic records and fake mail providers, with campaign sending disabled. It lets you inspect the workflow without contacting anyone.
+The local demo uses sample records and simulated mail providers, with campaign sending disabled. It lets you inspect the workflow without contacting anyone.
 
 1. Open **People** and **Accounts** to see the audience and its context.
 2. Open a campaign and follow the audience, message sequence, senders and schedule through to review.
@@ -32,7 +34,7 @@ Laravel 13, Vue 3 and Inertia connect the application, with Gmail, Microsoft and
 
 Campaigns can be written and reviewed without an AI provider. AI and research are optional layers for evidence, objectives, offers and drafts, with scoped permissions, budgets, approvals and reconciliation. They build on the review workflow rather than making approval implicit.
 
-This repository includes the application, synthetic fixtures, tests and generic deployment examples. Real OAuth connections, external AI/research and production delivery require separate configuration and verification; the local demo does not establish live-provider performance.
+This repository includes the application, sample fixtures, tests and generic deployment examples. Real OAuth connections, external AI/research and production delivery require separate configuration and verification; the local demo does not establish live-provider performance.
 
 ## Run locally
 
