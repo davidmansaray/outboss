@@ -1,19 +1,38 @@
 # Outboss
 
-A Laravel and Vue workspace for people, accounts, email campaigns and a unified inbox, with scoped REST/MCP access and governed AI capabilities.
+Outreach loses context when the person, the campaign and the reply live in different places. Outboss keeps them in one workspace: who someone is, what has already been said and what should happen next.
 
-This repository includes the application, synthetic demo fixtures, tests and generic deployment examples.
-
-## What to review
-
-- **Full-stack delivery:** Laravel 13, Vue 3, Inertia, durable people/accounts and multi-step campaigns.
-- **Integrations:** Gmail, Microsoft and Zoho adapters, scoped API tokens, REST and MCP surfaces.
-- **Reliability:** readiness checks, send pacing, recovery, suppressions and queue-specific worker lifetimes.
-- **Governed AI:** provider credentials, budgets, reconciliation and objective/GTM workflows, supported by deterministic tests.
-
-The core campaign workflow is human-written and needs no AI provider. The local demo uses synthetic records and fake mail providers; campaign sending stays off. Real OAuth connections, external AI/research and production delivery require separate configuration and verification.
+The product follows the work around an email. Prepare an audience, write the campaign, review exactly what will be sent, then handle replies and follow-ups from one inbox.
 
 ![Unified inbox with synthetic conversations](docs/screens/inbox.png)
+
+## Keep the next step connected
+
+A contact record is useful when it helps someone decide what to do. People and accounts connect to campaign activity and conversations, so a reply can be read alongside the outreach that prompted it.
+
+That context also changes the plan. A human reply, a hard bounce or an opt-out stops later campaign messages for that person. Out-of-office messages and delivery issues have their own places in the inbox, rather than looking like another unanswered lead.
+
+## Review before sending
+
+Approval should refer to something concrete. The campaign review brings together the exact recipients, messages, sender identities and sending window. Approval and launch are separate steps; readiness checks show what still needs attention.
+
+Sending has limits too: pacing, suppression and recovery rules sit behind the workflow. When a provider's delivery outcome is uncertain, the work goes to manual reconciliation rather than an automatic resend.
+
+## Take a look around
+
+The local demo uses synthetic records and fake mail providers, with campaign sending disabled. It lets you inspect the workflow without contacting anyone.
+
+1. Open **People** and **Accounts** to see the audience and its context.
+2. Open a campaign and follow the audience, message sequence, senders and schedule through to review.
+3. Open the inbox to inspect conversations, replies, delivery issues and opt-outs.
+
+## Under the interface
+
+Laravel 13, Vue 3 and Inertia connect the application, with Gmail, Microsoft and Zoho adapters and workspace-scoped REST and MCP access.
+
+Campaigns can be written and reviewed without an AI provider. AI and research are optional layers for evidence, objectives, offers and drafts, with scoped permissions, budgets, approvals and reconciliation. They build on the review workflow rather than making approval implicit.
+
+This repository includes the application, synthetic fixtures, tests and generic deployment examples. Real OAuth connections, external AI/research and production delivery require separate configuration and verification; the local demo does not establish live-provider performance.
 
 ## Run locally
 
