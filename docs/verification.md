@@ -1,6 +1,6 @@
 # Verification
 
-Checked locally on 22 October 2026 using PHP 8.5.3, Node 22.23.1 and the committed dependency locks. CI configuration is supplied but has not yet run on GitHub.
+Checked locally on 22 October 2026 using PHP 8.5.3, Node 22.23.1 and the committed dependency locks. GitHub checks run on each push; see [Actions](https://github.com/davidmansaray/outboss-showcase/actions). The first hosted run exposed a clean-checkout prerequisite: Wayfinder client routes must be generated before lint/type checks. The workflow now performs that generation explicitly.
 
 | Check | Result |
 |---|---|

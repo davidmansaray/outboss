@@ -42,6 +42,7 @@ Open **http://127.0.0.1:8125** with the synthetic local account **david@outboss.
 ## Checks
 
 ```bash
+php artisan wayfinder:generate --with-form
 composer ci:check
 npm run build
 npx playwright install chromium

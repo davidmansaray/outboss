@@ -31,6 +31,8 @@ jobs:
           composer install --prefer-dist --no-interaction --no-progress
           npm ci
           php scripts/setup-demo.php
+      - name: Generate typed client routes
+        run: php artisan wayfinder:generate --with-form
       - name: Lint, types and deterministic tests
         run: composer ci:check
       - name: Production build
