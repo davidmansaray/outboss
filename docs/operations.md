@@ -6,6 +6,6 @@ Run the scheduler every minute and supervise the required workers. The objective
 
 The local walkthrough uses synchronous work, fake providers and disabled sending. Redis, OAuth, external AI/research and managed-mail infrastructure are separately configured integrations.
 
-`scripts/deploy/release.php` demonstrates staged releases and activation. Preparation migrates and backfills before activation; the post-activation hook restarts workers. This showcase has no automatic production deployment step.
+`scripts/deploy/release.php` demonstrates staged releases and activation. Preparation migrates and backfills before activation; the post-activation hook restarts workers. This application has no automatic production deployment step.
 
 See [local setup](self-hosting.md), [API](api.md), [MCP](mcp.md) and [export formats](export-formats.md).

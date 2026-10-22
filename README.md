@@ -2,7 +2,7 @@
 
 A Laravel and Vue workspace for people, accounts, email campaigns and a unified inbox, with scoped REST/MCP access and governed AI capabilities.
 
-This is a runnable engineering showcase prepared from a committed product snapshot. It includes the application, synthetic fixtures and tests, with a fresh publication history and generic deployment examples.
+This repository includes the application, synthetic demo fixtures, tests and generic deployment examples.
 
 ## What to review
 

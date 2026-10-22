@@ -1,4 +1,4 @@
-# Showcase provenance
+# Repository provenance
 
 Prepared from Outboss commit `0e8de02395ebecdf283525081fe53cb7bef045d3` on 22 October 2026, with a fresh publication history separate from the private development repository and in-progress branches.
 
