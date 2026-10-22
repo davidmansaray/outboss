@@ -1,0 +1,100 @@
+{
+    "schema_version": "message_drafting_evaluation_responses_v1",
+    "dataset_version": "v1",
+    "case_set_hash": "21fcbcc99671dfbb0908720f8189f049cd9ef9a94ca749dfcaf21944bde8b2bc",
+    "provenance": {
+        "kind": "deterministic_fixture",
+        "fixture_version": "message_drafting_deterministic_fixture_v2",
+        "target_provider_evidence": false
+    },
+    "responses": [
+        {
+            "case_id": "causal_prose",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"body_template\":\"Hiring caused churn, therefore this is urgent.\"}"
+        },
+        {
+            "case_id": "choice_length_limit",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "conflicting_evidence_abstain",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"Approved evidence conflicts.\"]}"
+        },
+        {
+            "case_id": "cta_mismatch",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"book_workshop\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "destination_mismatch",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"destination_url\":\"https://other.invalid/collect\"}"
+        },
+        {
+            "case_id": "false_familiarity",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"subject_template\":\"Re: our previous conversation\"}"
+        },
+        {
+            "case_id": "insufficient_evidence_abstain",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"Approved evidence is insufficient.\"]}"
+        },
+        {
+            "case_id": "invented_prose",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"body_template\":\"Synthetic account revenue doubled last week.\"}"
+        },
+        {
+            "case_id": "malformed_json",
+            "output": "{"
+        },
+        {
+            "case_id": "offer_mismatch",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"offer_version_id\":\"33333333-3333-4333-8333-333333333333\"}"
+        },
+        {
+            "case_id": "prohibited_personalization",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"body_template\":\"Your medical condition suggests urgency.\"}"
+        },
+        {
+            "case_id": "readiness_abstain",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"The approved Offer is not ready.\"]}"
+        },
+        {
+            "case_id": "render_length_limit",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "rights_abstain",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"Source-use rights are unavailable.\"]}"
+        },
+        {
+            "case_id": "supported_exact_choice",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "suppression_abstain",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"The recipient is suppressed.\"]}"
+        },
+        {
+            "case_id": "unknown_choice",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "unlinked_reason_choice",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"\",\"cta_kind\":\"offer_action\",\"abstain\":true,\"abstention_reasons\":[\"Exact Reason-to-Contact Claim linkage is unavailable.\"]}"
+        },
+        {
+            "case_id": "unsafe_placeholder",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "unsafe_prose",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[],\"body_template\":\"We guarantee results and have unlimited capacity.\"}"
+        },
+        {
+            "case_id": "unsafe_recipient_render",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        },
+        {
+            "case_id": "wrong_reason_choice",
+            "output": "{\"message_pattern\":\"claim_offer_v1\",\"evidence_choice\":\"evidence_v1_8888888888888888888888888888888888888888888888888888888888888888\",\"cta_kind\":\"offer_action\",\"abstain\":false,\"abstention_reasons\":[]}"
+        }
+    ]
+}

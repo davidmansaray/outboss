@@ -1,0 +1,3491 @@
+openapi: 3.1.0
+info:
+  title: Outboss API
+  version: '1.0.0'
+  summary: Workspace-scoped REST API for campaigns, people, inbox, mailboxes, suppressions, and exports.
+  description: |
+    REST API v1 for Outboss. Authenticate with a personal access token created in
+    **Setup & safety → API keys**. Every request is scoped to the token owner's current workspace.
+
+    Per-operation scope requirements are listed in each operation description and in the
+    `x-required-scope` extension. Launch (`campaigns:launch`) and inbox send (`inbox:send`)
+    are separate from write scopes so a key can draft campaigns without sending email.
+
+    The machine-readable companion to [docs/api.md](../api.md).
+  license:
+    name: MIT
+  contact:
+    name: Outboss
+
+servers:
+  - url: https://{host}/api/v1
+    description: Self-hosted Outboss instance
+    variables:
+      host:
+        default: your-host.example
+        description: Hostname of your Outboss install (no scheme or path)
+
+tags:
+  - name: Campaigns
+    description: Campaigns, launch readiness, pause, resume, complete, and launch.
+  - name: Sequence steps
+    description: Draft sequence steps, preview, reorder, and test sends.
+  - name: Enrolments
+    description: Enrolable people and campaign recipients.
+  - name: People
+    description: Durable people registry.
+  - name: Accounts
+    description: Durable accounts (companies).
+  - name: Sign-in & devices
+    description: |
+      Server discovery, sign-in for the Outboss iOS app (PKCE code exchange and rotating
+      refresh tokens), the current user, and push notification registration. `/server` is
+      public. Personal API keys can call `/me`; device-only endpoints return
+      `device_session_required` for them.
+  - name: Threads
+    description: Unified inbox threads, replies, triage, and compose.
+  - name: Mailboxes
+    description: Connected mailboxes, domain auth, sync, and sending controls.
+  - name: Suppressions
+    description: Workspace suppression list.
+  - name: Exports
+    description: JSON or CSV workspace exports.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /server:
+    get:
+      operationId: getServer
+      tags: [Sign-in & devices]
+      summary: Identify this Outboss server
+      description: |
+        Public; no token. The iOS app calls it to confirm that a self-hosted address is an
+        Outboss server before sign-in. `sign_in_url` is the absolute URL of the web sign-in
+        page (`GET /mobile/authorize`). `push` uses the same readiness check as
+        `/me` `capabilities.push`. `version` is the server's release label, or `dev` when
+        none is configured. Rate limited to 120 requests per minute per client address.
+      security: []
+      responses:
+        '200':
+          description: Server description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerEnvelope'
+              example:
+                data:
+                  product: outboss
+                  version: dev
+                  api: v1
+                  push: false
+                  sign_in_url: https://your-host.example/mobile/authorize
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/token:
+    post:
+      operationId: issueDeviceToken
+      tags: [Sign-in & devices]
+      summary: Exchange a sign-in code or refresh token for device tokens
+      description: |
+        Used by the iOS app. `authorization_code` trades the one-time code from the web
+        sign-in sheet (`GET /mobile/authorize`, outside this API) plus the PKCE verifier for a
+        one-hour access token and a single-use refresh token. `refresh_token` rotates the
+        refresh token and mints a new access token; pass `workspace_id` to switch workspace.
+
+        A refresh token reused within 30 seconds of its first use (a lost response) mints a
+        fresh pair. Later reuse revokes the device session and returns `session_revoked`.
+        Access tokens carry exactly `inbox:read`, `inbox:send`, `mailboxes:read`,
+        `campaigns:read` and `people:read`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/AuthorizationCodeGrant'
+                - $ref: '#/components/schemas/RefreshTokenGrant'
+      responses:
+        '200':
+          description: New device tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceTokensEnvelope'
+        '400':
+          description: '`invalid_grant`: the code or refresh token is invalid, used or expired'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: '`session_revoked`: the device was signed out or a refresh token was reused'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '403':
+          description: '`workspace_forbidden`: not a member of `workspace_id`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/logout:
+    post:
+      operationId: signOutDevice
+      tags: [Sign-in & devices]
+      summary: Sign this device out
+      description: Revokes the device session, its access and refresh tokens, and its push registration.
+      responses:
+        '204':
+          description: Signed out
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/DeviceSessionRequired'
+
+  /me:
+    get:
+      operationId: getMe
+      tags: [Sign-in & devices]
+      summary: Current user, workspace and session
+      description: |
+        Who the token belongs to, the workspace it is bound to, every workspace the person can
+        switch to, and whether push notifications are available on this server. Any token.
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /devices/current/push:
+    put:
+      operationId: registerDevicePush
+      tags: [Sign-in & devices]
+      summary: Register this device for push notifications
+      description: |
+        Stores the APNs device token and notification preference. Send it on every launch;
+        Apple can rotate tokens. A token registered by another session is moved to this one.
+        `needs` alerts for replies that land in Needs reply, `leads` only for interested
+        recipients, `off` keeps the badge without alerts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDevicePushRequest'
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePushEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/DeviceSessionRequired'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      operationId: removeDevicePush
+      tags: [Sign-in & devices]
+      summary: Stop push notifications for this device
+      responses:
+        '204':
+          description: Removed
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/DeviceSessionRequired'
+
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      tags: [Campaigns]
+      summary: List campaigns
+      description: |
+        Returns a paginated list of campaigns in the current workspace, newest `updated_at` first.
+        Optional `status` is ignored when it is not a known campaign status.
+      x-required-scope: campaigns:read
+      parameters:
+        - $ref: '#/components/parameters/StatusCampaign'
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated campaign summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignSummaryPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    post:
+      operationId: createCampaign
+      tags: [Campaigns]
+      summary: Create a campaign
+      description: |
+        Creates a draft campaign with a default Intro sequence step. Does not send email.
+        The campaign stays in draft until launch.
+      x-required-scope: campaigns:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignRequest'
+      responses:
+        '201':
+          description: Created campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      operationId: getCampaign
+      tags: [Campaigns]
+      summary: Get a campaign
+      description: Returns one campaign including sequence steps and attached mailbox ids.
+      x-required-scope: campaigns:read
+      responses:
+        '200':
+          description: Campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    patch:
+      operationId: updateCampaign
+      tags: [Campaigns]
+      summary: Update a campaign
+      description: |
+        Updates name, send mode, mailbox ids, and/or open tracking.
+        Sending setup (`send_mode`, `mailbox_ids`, `open_tracking_enabled`) can only change
+        while the campaign is draft or paused.
+      x-required-scope: campaigns:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignRequest'
+      responses:
+        '200':
+          description: Updated campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/launch-readiness:
+    get:
+      operationId: getCampaignLaunchReadiness
+      tags: [Campaigns]
+      summary: Check launch readiness
+      description: |
+        Reports whether a campaign is ready to launch. `ready` is true when `blockers` is empty.
+        Always check this before launch.
+      x-required-scope: campaigns:read
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Readiness report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LaunchReadiness'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/launch:
+    post:
+      operationId: launchCampaign
+      tags: [Campaigns]
+      summary: Launch a campaign
+      description: |
+        Publishes the sequence and starts sending to enrolled recipients. Requires `campaigns:launch`,
+        not `campaigns:write`. Fails when launch blockers remain. Supports `Idempotency-Key`.
+      x-required-scope: campaigns:launch
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Launched campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/pause:
+    post:
+      operationId: pauseCampaign
+      tags: [Campaigns]
+      summary: Pause a campaign
+      description: Pauses an active campaign. Recipients stop receiving further sequence mail until resume.
+      x-required-scope: campaigns:write
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Paused campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/resume:
+    post:
+      operationId: resumeCampaign
+      tags: [Campaigns]
+      summary: Resume a campaign
+      description: |
+        Resumes a paused or completed campaign and continues sending to remaining recipients.
+        Requires `campaigns:launch`. The campaign must still pass launch readiness.
+      x-required-scope: campaigns:launch
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Resumed campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/complete:
+    post:
+      operationId: completeCampaign
+      tags: [Campaigns]
+      summary: Complete a campaign
+      description: Marks a campaign as completed and stops remaining sequence work. Draft campaigns cannot be completed.
+      x-required-scope: campaigns:write
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Completed campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/enrollable-people:
+    get:
+      operationId: listEnrollablePeople
+      tags: [Enrolments]
+      summary: List people for enrolment
+      description: |
+        Lists workspace people with enrolment eligibility for this campaign.
+        Use `only_eligible=1` to hide already enrolled and suppressed addresses.
+      x-required-scope: campaigns:read
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/SearchQuery'
+        - name: only_eligible
+          in: query
+          description: When true, exclude already enrolled and suppressed people.
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/PerPageDefault25'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated enrolable people
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollablePersonPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/enrollments:
+    post:
+      operationId: enrollPeople
+      tags: [Enrolments]
+      summary: Enrol people in a campaign
+      description: |
+        Enrols people by id (maximum 500). Skips unknown, already enrolled, or suppressed addresses.
+        Does not send email. Supports `Idempotency-Key`. When the campaign is completed and at least
+        one person is enrolled, the response includes a `notice` to resume sending.
+      x-required-scope: campaigns:write
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollPeopleRequest'
+      responses:
+        '201':
+          description: Enrolment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/recipients:
+    get:
+      operationId: listCampaignRecipients
+      tags: [Enrolments]
+      summary: List campaign recipients
+      description: Paginated recipients for a campaign. Optional `status` is ignored when it is not a known recipient lifecycle value.
+      x-required-scope: campaigns:read
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/StatusRecipient'
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated recipients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignRecipientPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/steps:
+    post:
+      operationId: addSequenceStep
+      tags: [Sequence steps]
+      summary: Add a sequence step
+      description: Adds a follow-up step to the campaign draft sequence. The campaign must be draft or paused.
+      x-required-scope: campaigns:write
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSequenceStepRequest'
+      responses:
+        '201':
+          description: Created step
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceStepEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaigns/{campaign}/steps/order:
+    put:
+      operationId: reorderSequenceSteps
+      tags: [Sequence steps]
+      summary: Reorder sequence steps
+      description: Reorders the campaign draft sequence. Provide every active step id exactly once.
+      x-required-scope: campaigns:write
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderSequenceStepsRequest'
+      responses:
+        '200':
+          description: Reordered steps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceStepCollection'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /sequence-steps/{step}:
+    parameters:
+      - $ref: '#/components/parameters/StepId'
+    patch:
+      operationId: updateSequenceStep
+      tags: [Sequence steps]
+      summary: Update a sequence step
+      description: |
+        Updates title, delay, send_as, subject, or body. Allowed `delay_minutes`: 0, 2880, 4320, 7200, 10080.
+        Templates may use `{{first_name}}` and `{{company}}`. The campaign must be editable.
+      x-required-scope: campaigns:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSequenceStepRequest'
+      responses:
+        '200':
+          description: Updated step
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceStepEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    delete:
+      operationId: deleteSequenceStep
+      tags: [Sequence steps]
+      summary: Delete a sequence step
+      description: Soft-deletes a draft sequence step. The campaign must be editable.
+      x-required-scope: campaigns:write
+      responses:
+        '204':
+          description: Step deleted
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /sequence-steps/{step}/preview:
+    get:
+      operationId: previewSequenceStep
+      tags: [Sequence steps]
+      summary: Preview a rendered step
+      description: |
+        Renders the step subject and body. Pass `recipient_id` to use an enrolled recipient;
+        otherwise a sample Jane / Acme recipient is used.
+      x-required-scope: campaigns:read
+      parameters:
+        - $ref: '#/components/parameters/StepId'
+        - name: recipient_id
+          in: query
+          description: Campaign recipient id belonging to this step's campaign.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rendered preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceStepPreview'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /sequence-steps/{step}/test:
+    post:
+      operationId: testSequenceStep
+      tags: [Sequence steps]
+      summary: Send a test email for a step
+      description: |
+        Sends a rendered sequence step to a test address from the chosen mailbox.
+        Requires `inbox:send`. `client_operation_id` is a UUID used for send-level idempotency.
+        Supports `Idempotency-Key`.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/StepId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSequenceStepRequest'
+      responses:
+        '200':
+          description: Test sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentFlag'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /campaign-recipients/{recipient}:
+    parameters:
+      - $ref: '#/components/parameters/RecipientId'
+    patch:
+      operationId: updateCampaignRecipient
+      tags: [Enrolments]
+      summary: Pause, resume, or pin a recipient
+      description: |
+        Provide exactly one of `action` (`pause` or `resume`) or `mailbox_id`.
+        Mailbox cannot change after the first send.
+      x-required-scope: campaigns:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignRecipientRequest'
+      responses:
+        '200':
+          description: Updated recipient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignRecipientEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    delete:
+      operationId: removeCampaignRecipient
+      tags: [Enrolments]
+      summary: Remove a recipient
+      description: Removes a recipient from the campaign.
+      x-required-scope: campaigns:write
+      responses:
+        '204':
+          description: Recipient removed
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /people:
+    get:
+      operationId: listPeople
+      tags: [People]
+      summary: List people
+      description: |
+        Searches people by name, email, or account. `query` and `q` are aliases.
+        Optional `account_id` limits results to one account.
+      x-required-scope: people:read
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SearchQ'
+        - name: account_id
+          in: query
+          schema:
+            type: integer
+          description: When numeric, only people on this account are returned.
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated people
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    post:
+      operationId: createPerson
+      tags: [People]
+      summary: Create a person
+      description: Creates a person. Email must be unique in the workspace. Does not enrol them or send email.
+      x-required-scope: people:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePersonRequest'
+      responses:
+        '201':
+          description: Created person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /people/{person}:
+    parameters:
+      - $ref: '#/components/parameters/PersonId'
+    get:
+      operationId: getPerson
+      tags: [People]
+      summary: Get a person
+      description: Returns one person, including their linked account when present.
+      x-required-scope: people:read
+      responses:
+        '200':
+          description: Person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    patch:
+      operationId: updatePerson
+      tags: [People]
+      summary: Update a person
+      description: Email is required and must stay unique. Changing email does not rewrite historical campaign or inbox records.
+      x-required-scope: people:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePersonRequest'
+      responses:
+        '200':
+          description: Updated person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    delete:
+      operationId: deletePerson
+      tags: [People]
+      summary: Delete a person
+      description: Deletes a person from the registry. Campaign enrolment snapshots remain.
+      x-required-scope: people:write
+      responses:
+        '204':
+          description: Person deleted
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [Accounts]
+      summary: List accounts
+      description: Lists accounts. `query` and `q` search name, domain, and website.
+      x-required-scope: people:read
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SearchQ'
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    post:
+      operationId: createAccount
+      tags: [Accounts]
+      summary: Create an account
+      description: |
+        Creates an account. A website domain must be unique. If the name already exists
+        without a website, set `confirmed_duplicate` to true to keep both records.
+      x-required-scope: people:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreAccountRequest'
+      responses:
+        '201':
+          description: Created account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /accounts/{account}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getAccount
+      tags: [Accounts]
+      summary: Get an account
+      description: Returns one account including `people_count`.
+      x-required-scope: people:read
+      responses:
+        '200':
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    patch:
+      operationId: updateAccount
+      tags: [Accounts]
+      summary: Update an account
+      description: Updates name, website, notes, and tags. Domain uniqueness rules still apply.
+      x-required-scope: people:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreAccountRequest'
+      responses:
+        '200':
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    delete:
+      operationId: deleteAccount
+      tags: [Accounts]
+      summary: Delete an account
+      description: Deletes an account from the registry.
+      x-required-scope: people:write
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads:
+    get:
+      operationId: listThreads
+      tags: [Threads]
+      summary: List inbox threads
+      description: |
+        Lists Unibox threads. Default folder is `all_open`. `mailbox` is a mailbox id.
+        `campaign` is a campaign id, `all`, or `none`.
+      x-required-scope: inbox:read
+      parameters:
+        - name: folder
+          in: query
+          description: Unibox folder. Unknown values fall back to `all_open`.
+          schema:
+            $ref: '#/components/schemas/InboxFolder'
+        - name: mailbox
+          in: query
+          description: When set to a positive integer, only threads from that mailbox are returned.
+          schema:
+            type: integer
+        - name: campaign
+          in: query
+          description: Campaign id, `all` (default), or `none` (threads with no campaign recipient).
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: Search subject, preview, and the other person's name or email (2–100 characters; shorter is ignored).
+          schema:
+            type: string
+            maxLength: 100
+        - name: unread
+          in: query
+          description: When true, only unread threads.
+          schema:
+            type: boolean
+        - name: pagination
+          in: query
+          description: |
+            `page` (default) uses page numbers. `cursor` uses keyset paging on
+            `(last_message_at desc, id desc)`, which stays correct while new replies arrive.
+          schema:
+            type: string
+            enum: [page, cursor]
+        - name: cursor
+          in: query
+          description: '`meta.next_cursor` from the previous cursor page.'
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PerPageDefault50'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Thread summaries, page-numbered or cursor-paged
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ThreadSummaryPage'
+                  - $ref: '#/components/schemas/ThreadSummaryCursorPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/{thread}:
+    get:
+      operationId: getThread
+      tags: [Threads]
+      summary: Get a thread
+      description: |
+        Returns one thread with its messages. Does not change read state; use
+        `POST /threads/{thread}/read`.
+      x-required-scope: inbox:read
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Thread with messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadDetailEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/{thread}/reply:
+    post:
+      operationId: replyToThread
+      tags: [Threads]
+      summary: Reply on a thread
+      description: |
+        Sends a reply from the thread's mailbox. Requires `inbox:send`.
+        `client_operation_id` is a UUID used for send-level idempotency. Supports `Idempotency-Key`.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyToThreadRequest'
+      responses:
+        '200':
+          description: Reply accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadReplyResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/{thread}/done:
+    post:
+      operationId: markThreadDone
+      tags: [Threads]
+      summary: Mark a thread as done
+      description: Sets the thread local state to `done`. Does not send email.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Updated state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadDoneEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/{thread}/classification:
+    post:
+      operationId: classifyThread
+      tags: [Threads]
+      summary: Classify a thread
+      description: |
+        Applies a triage action to the thread and the linked campaign recipient when present.
+        Does not send email. Reclassifying an unsubscribed recipient may include a `notice`.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassifyThreadRequest'
+      responses:
+        '200':
+          description: Classification applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadClassificationResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/changes:
+    get:
+      operationId: listThreadChanges
+      tags: [Threads]
+      summary: Threads changed since a watermark
+      description: |
+        Every thread in the workspace changed after `since`, oldest change first, across all
+        folders. Call without `since` to get a starting watermark. Keep calling with
+        `meta.next_since` while `meta.has_more` is true.
+
+        A caught-up watermark re-reads a 10-second overlap so late commits are never missed;
+        drop rows you already hold with the same `updated_at`. Rows with `visible: false` left
+        the inbox and should be removed locally. A watermark older than 30 days, or malformed,
+        returns `410 sync_reset_required`: reload from the first page.
+      x-required-scope: inbox:read
+      parameters:
+        - name: since
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 200
+      responses:
+        '200':
+          description: Changed threads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadChanges'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '410':
+          description: '`sync_reset_required`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /inbox/counts:
+    get:
+      operationId: getInboxCounts
+      tags: [Threads]
+      summary: Folder and unread counts
+      description: |
+        The same folder counts the web Unibox shows, unread counts for the folders the app
+        badges, and `badge`: unread Needs reply threads across every workspace the person
+        belongs to. Accepts the `mailbox` and `campaign` filters of `GET /threads`.
+      x-required-scope: inbox:read
+      parameters:
+        - name: mailbox
+          in: query
+          schema:
+            type: integer
+        - name: campaign
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboxCountsEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /threads/{thread}/read:
+    post:
+      operationId: markThreadRead
+      tags: [Threads]
+      summary: Mark a thread read
+      description: Clears the unread flag. Calling it twice is safe.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Updated thread
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadSummaryEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /threads/{thread}/unread:
+    post:
+      operationId: markThreadUnread
+      tags: [Threads]
+      summary: Mark a thread unread
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: Updated thread
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadSummaryEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /messages:
+    post:
+      operationId: composeMessage
+      tags: [Threads]
+      summary: Compose a new message
+      description: |
+        Sends a new message from a workspace mailbox. Requires `inbox:send`.
+        `client_operation_id` is a UUID used for send-level idempotency. Supports `Idempotency-Key`.
+      x-required-scope: inbox:send
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComposeMessageRequest'
+      responses:
+        '201':
+          description: Message accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComposeMessageResult'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes:
+    get:
+      operationId: listMailboxes
+      tags: [Mailboxes]
+      summary: List mailboxes
+      description: Lists connected (non-disconnected) mailboxes in the current workspace.
+      x-required-scope: mailboxes:read
+      parameters:
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated mailboxes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes/{mailbox}:
+    get:
+      operationId: getMailbox
+      tags: [Mailboxes]
+      summary: Get a mailbox
+      description: Returns one mailbox including sync feedback when sync states are loaded.
+      x-required-scope: mailboxes:read
+      parameters:
+        - $ref: '#/components/parameters/MailboxId'
+      responses:
+        '200':
+          description: Mailbox
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes/{mailbox}/auth-check:
+    get:
+      operationId: getMailboxAuthCheck
+      tags: [Mailboxes]
+      summary: Check domain authentication
+      description: Checks SPF, DKIM, and DMARC for the mailbox sending domain.
+      x-required-scope: mailboxes:read
+      parameters:
+        - $ref: '#/components/parameters/MailboxId'
+      responses:
+        '200':
+          description: Domain auth result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainAuthCheck'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes/{mailbox}/sync:
+    post:
+      operationId: syncMailbox
+      tags: [Mailboxes]
+      summary: Queue a mailbox sync
+      description: Requests a background inbox and sent-mail sync.
+      x-required-scope: mailboxes:write
+      parameters:
+        - $ref: '#/components/parameters/MailboxId'
+      responses:
+        '200':
+          description: Sync queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxSyncQueued'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes/{mailbox}/sending:
+    patch:
+      operationId: updateMailboxSending
+      tags: [Mailboxes]
+      summary: Update daily send cap
+      description: Sets `daily_send_cap` (1–1000) or clears it with `null`.
+      x-required-scope: mailboxes:write
+      parameters:
+        - $ref: '#/components/parameters/MailboxId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMailboxSendingRequest'
+      responses:
+        '200':
+          description: Updated mailbox
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /mailboxes/{mailbox}/resume-sending:
+    post:
+      operationId: resumeMailboxSending
+      tags: [Mailboxes]
+      summary: Resume mailbox sending
+      description: Clears a sending pause (bounce or provider-error threshold).
+      x-required-scope: mailboxes:write
+      parameters:
+        - $ref: '#/components/parameters/MailboxId'
+      responses:
+        '200':
+          description: Mailbox with sending resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailboxEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /suppressions:
+    get:
+      operationId: listSuppressions
+      tags: [Suppressions]
+      summary: List suppressions
+      description: Lists suppression entries, newest first.
+      x-required-scope: suppressions:read
+      parameters:
+        - $ref: '#/components/parameters/PerPageDefault15'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated suppressions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+    post:
+      operationId: addSuppression
+      tags: [Suppressions]
+      summary: Add a suppression
+      description: |
+        Adds an email to the suppression list. Defaults to reason `manual`.
+        Existing entries are returned unchanged with HTTP 200; new entries return 201.
+      x-required-scope: suppressions:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreSuppressionRequest'
+      responses:
+        '200':
+          description: Existing suppression returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionEnvelope'
+        '201':
+          description: Suppression created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /suppressions/{entry}:
+    delete:
+      operationId: removeSuppression
+      tags: [Suppressions]
+      summary: Remove a suppression
+      description: Deletes a suppression entry so the address can be enrolled again.
+      x-required-scope: suppressions:write
+      parameters:
+        - $ref: '#/components/parameters/SuppressionId'
+      responses:
+        '204':
+          description: Suppression deleted
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /exports/enrollments:
+    get:
+      operationId: exportEnrollments
+      tags: [Exports]
+      summary: Export enrolments
+      description: |
+        One row per campaign recipient snapshot. JSON by default; CSV when `format=csv`
+        or `Accept` contains `text/csv`. See [docs/export-formats.md](../export-formats.md).
+      x-required-scope: exports:read
+      parameters:
+        - $ref: '#/components/parameters/ExportFormat'
+      responses:
+        '200':
+          description: Enrolment export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentExport'
+            text/csv:
+              schema:
+                type: string
+              example: campaign,campaign_status,email,full_name
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /exports/suppressions:
+    get:
+      operationId: exportSuppressions
+      tags: [Exports]
+      summary: Export suppressions
+      description: |
+        Suppression list export. JSON by default; CSV when `format=csv` or `Accept` contains `text/csv`.
+      x-required-scope: exports:read
+      parameters:
+        - $ref: '#/components/parameters/ExportFormat'
+      responses:
+        '200':
+          description: Suppression export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionExport'
+            text/csv:
+              schema:
+                type: string
+              example: email,reason,created_at
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /exports/campaign-outcomes:
+    get:
+      operationId: exportCampaignOutcomes
+      tags: [Exports]
+      summary: Export campaign outcomes
+      description: |
+        Per-campaign outcome counts. JSON by default; CSV when `format=csv` or `Accept` contains `text/csv`.
+      x-required-scope: exports:read
+      parameters:
+        - $ref: '#/components/parameters/ExportFormat'
+      responses:
+        '200':
+          description: Campaign outcome export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignOutcomeExport'
+            text/csv:
+              schema:
+                type: string
+              example: campaign,status,created_at,launched_at,completed_at,queued,sent,replied,interested,bounced,unsubscribed,needs_review
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum personal access token
+      description: |
+        Personal access token from Setup & safety → API keys. Send as
+        `Authorization: Bearer {token}`. The token's scopes gate every route.
+
+  parameters:
+    CampaignId:
+      name: campaign
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Campaign id
+    StepId:
+      name: step
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Sequence step id
+    RecipientId:
+      name: recipient
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Campaign recipient id
+    PersonId:
+      name: person
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Person id
+    AccountId:
+      name: account
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Account id
+    ThreadId:
+      name: thread
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Thread id
+    MailboxId:
+      name: mailbox
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Mailbox id
+    SuppressionId:
+      name: entry
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Suppression entry id
+    Page:
+      name: page
+      in: query
+      description: Page number (Laravel paginator, default 1).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPageDefault15:
+      name: per_page
+      in: query
+      description: Results per page. Clamped to 1–100. Default 15.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 15
+    PerPageDefault25:
+      name: per_page
+      in: query
+      description: Results per page. Clamped to 1–100. Default 25.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    PerPageDefault50:
+      name: per_page
+      in: query
+      description: Results per page. Clamped to 1–100. Default 50.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    StatusCampaign:
+      name: status
+      in: query
+      description: Filter by campaign status. Unknown values are ignored.
+      schema:
+        $ref: '#/components/schemas/CampaignStatus'
+    StatusRecipient:
+      name: status
+      in: query
+      description: Filter by recipient lifecycle status. Unknown values are ignored.
+      schema:
+        $ref: '#/components/schemas/RecipientStatus'
+    SearchQuery:
+      name: query
+      in: query
+      description: Search term.
+      schema:
+        type: string
+    SearchQ:
+      name: q
+      in: query
+      description: Alias for `query`.
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        Optional replay key (maximum 255 characters). When present on a supported route,
+        a successful or 4xx response is stored for 24 hours and replayed for the same
+        token, route, and key. Missing or blank keys are ignored. Keys longer than 255
+        characters return a validation error.
+      schema:
+        type: string
+        maxLength: 255
+    ExportFormat:
+      name: format
+      in: query
+      description: "Set to `csv` to stream a CSV instead of JSON. `Accept: text/csv` has the same effect."
+      schema:
+        type: string
+        enum: [csv]
+
+  responses:
+    DeviceSessionRequired:
+      description: '`device_session_required`: only signed-in iOS devices can call this'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Unauthenticated:
+      description: |
+        Missing or invalid bearer token (`unauthenticated`), or an expired device access
+        token (`token_expired`): refresh it and retry.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              type: unauthenticated
+              message: Authentication required.
+    Forbidden:
+      description: Missing scope or unauthorised for this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            insufficient_scope:
+              value:
+                error:
+                  type: insufficient_scope
+                  message: This API key does not have the campaigns:read scope.
+            forbidden:
+              value:
+                error:
+                  type: forbidden
+                  message: This action is unauthorised.
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              type: not_found
+              message: The requested resource was not found.
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              type: validation_error
+              message: The name field is required.
+              errors:
+                name:
+                  - The name field is required.
+    RateLimited:
+      description: More than 120 requests per minute for this token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            error:
+              type: rate_limited
+              message: Too many requests.
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      additionalProperties: false
+      required: [error]
+      description: Standard API error body used for `/api/*` exceptions and scope denials.
+      properties:
+        error:
+          type: object
+          required: [type, message]
+          additionalProperties: true
+          properties:
+            type:
+              type: string
+              description: Machine-readable error type
+              enum:
+                - validation_error
+                - unauthenticated
+                - forbidden
+                - insufficient_scope
+                - not_found
+                - rate_limited
+                - bad_request
+                - http_error
+            message:
+              type: string
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+              description: Present on `validation_error` — Laravel field messages.
+
+    PaginationLinks:
+      type: object
+      additionalProperties: true
+      properties:
+        first:
+          type: [string, 'null']
+          format: uri
+        last:
+          type: [string, 'null']
+          format: uri
+        prev:
+          type: [string, 'null']
+          format: uri
+        next:
+          type: [string, 'null']
+          format: uri
+
+    PaginationMeta:
+      type: object
+      additionalProperties: true
+      description: |
+        Laravel paginator meta. Resource collections also include `from`, `to`, `path`, and `links`.
+        Some custom list endpoints return only `current_page`, `last_page`, `per_page`, and `total`.
+      required: [current_page, last_page, per_page, total]
+      properties:
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+        from:
+          type: [integer, 'null']
+        to:
+          type: [integer, 'null']
+        path:
+          type: string
+        links:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    CampaignStatus:
+      type: string
+      enum: [draft, active, paused, completed]
+
+    SendMode:
+      type: string
+      enum: [rotate, pin]
+
+    SequenceSendAs:
+      type: string
+      enum: [new_thread, reply]
+
+    RecipientStatus:
+      type: string
+      enum:
+        - queued
+        - active
+        - paused
+        - blocked_mailbox
+        - completed
+        - replied
+        - interested
+        - not_now
+        - wrong_person
+        - bounced
+        - unsubscribed
+        - removed
+
+    RecipientDisplayStatus:
+      type: string
+      description: Display status — lifecycle value, or `opened` / `in_sequence` for in-flight recipients.
+      enum:
+        - queued
+        - active
+        - paused
+        - blocked_mailbox
+        - completed
+        - replied
+        - interested
+        - not_now
+        - wrong_person
+        - bounced
+        - unsubscribed
+        - removed
+        - opened
+        - in_sequence
+
+    SuppressionReason:
+      type: string
+      enum: [unsubscribe, hard_bounce, manual]
+
+    ConnectionStatus:
+      type: string
+      enum: [connected, needs_reconnect, disconnected]
+
+    MailProvider:
+      type: string
+      enum: [gmail, microsoft, zoho]
+
+    ThreadClassification:
+      type: string
+      enum: [human, out_of_office, bounce, unsubscribe, system, unknown]
+
+    ThreadLocalState:
+      type: string
+      enum: [needs_action, open, out_of_office, problem, done]
+
+    InboxFolder:
+      type: string
+      enum:
+        - leads
+        - all_replies
+        - closed
+        - needs
+        - all_open
+        - open
+        - ooo
+        - delivery
+        - opt_outs
+        - problems
+        - done
+        - sent
+
+    MessageDirection:
+      type: string
+      enum: [inbound, outbound]
+
+    DomainAuthResult:
+      type: string
+      enum: [pass, missing, unknown]
+
+    PersonSource:
+      type: string
+      enum: [manual, import, campaign_backfill]
+
+    DateTime:
+      type: [string, 'null']
+      format: date-time
+      description: ISO 8601 timestamp, or null
+
+    NamedId:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    CreateCampaignRequest:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 120
+
+    UpdateCampaignRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        send_mode:
+          $ref: '#/components/schemas/SendMode'
+        mailbox_ids:
+          type: array
+          items:
+            type: integer
+          description: Workspace mailbox ids in send order. Unknown ids are ignored.
+        open_tracking_enabled:
+          type: boolean
+
+    CreateSequenceStepRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: [string, 'null']
+          maxLength: 80
+          description: Defaults to Follow-up when omitted.
+
+    UpdateSequenceStepRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          maxLength: 80
+        delay_minutes:
+          type: integer
+          enum: [0, 2880, 4320, 7200, 10080]
+        send_as:
+          $ref: '#/components/schemas/SequenceSendAs'
+        subject_template:
+          type: [string, 'null']
+          maxLength: 240
+        body_template:
+          type: string
+          maxLength: 10000
+
+    ReorderSequenceStepsRequest:
+      type: object
+      required: [step_ids]
+      additionalProperties: false
+      properties:
+        step_ids:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+          description: Distinct active step ids in the new order.
+
+    TestSequenceStepRequest:
+      type: object
+      required: [mailbox_id, to, client_operation_id]
+      additionalProperties: false
+      properties:
+        mailbox_id:
+          type: integer
+        to:
+          type: string
+          format: email
+        client_operation_id:
+          type: string
+          format: uuid
+
+    EnrollPeopleRequest:
+      type: object
+      required: [person_ids]
+      additionalProperties: false
+      properties:
+        person_ids:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            type: integer
+          description: Distinct workspace person ids.
+
+    UpdateCampaignRecipientRequest:
+      type: object
+      additionalProperties: false
+      description: Provide exactly one of `action` or `mailbox_id`.
+      properties:
+        action:
+          type: [string, 'null']
+          enum: [pause, resume]
+        mailbox_id:
+          type: [integer, 'null']
+
+    StorePersonRequest:
+      type: object
+      required: [email]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          maxLength: 255
+        full_name:
+          type: [string, 'null']
+          maxLength: 255
+        job_title:
+          type: [string, 'null']
+          maxLength: 255
+        notes:
+          type: [string, 'null']
+          maxLength: 10000
+        tags:
+          type: [array, 'null']
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 40
+        account_id:
+          type: [integer, 'null']
+
+    StoreAccountRequest:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        website:
+          type: [string, 'null']
+          maxLength: 255
+        notes:
+          type: [string, 'null']
+          maxLength: 10000
+        tags:
+          type: [array, 'null']
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 40
+        confirmed_duplicate:
+          type: boolean
+
+    ReplyToThreadRequest:
+      type: object
+      required: [body, client_operation_id]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        client_operation_id:
+          type: string
+          format: uuid
+
+    ClassifyThreadRequest:
+      type: object
+      required: [action]
+      additionalProperties: false
+      properties:
+        action:
+          type: string
+          enum:
+            - interested
+            - replied
+            - treat_as_reply
+            - not_now
+            - wrong_person
+            - remove_bad_address
+            - remove_from_campaign
+
+    ComposeMessageRequest:
+      type: object
+      required: [mailbox_id, to, subject, body, client_operation_id]
+      additionalProperties: false
+      properties:
+        mailbox_id:
+          type: integer
+        to:
+          type: string
+          format: email
+        subject:
+          type: string
+        body:
+          type: string
+        client_operation_id:
+          type: string
+          format: uuid
+
+    UpdateMailboxSendingRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        daily_send_cap:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 1000
+
+    StoreSuppressionRequest:
+      type: object
+      required: [email]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          maxLength: 255
+        reason:
+          $ref: '#/components/schemas/SuppressionReason'
+
+    SequenceStep:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: [string, 'null']
+        position:
+          type: integer
+        delay_minutes:
+          type: integer
+        send_as:
+          $ref: '#/components/schemas/SequenceSendAs'
+        subject:
+          type: [string, 'null']
+          description: Subject template (`subject_template` on the model)
+        body:
+          type: [string, 'null']
+          description: Body template (`body_template` on the model)
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    SequenceStepEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/SequenceStep'
+
+    SequenceStepCollection:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceStep'
+
+    SequenceStepPreview:
+      type: object
+      required: [subject, body, to, recipient_id]
+      properties:
+        subject:
+          type: string
+        body:
+          type: string
+        to:
+          type: [string, 'null']
+        recipient_id:
+          type: [integer, 'null']
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        send_mode:
+          $ref: '#/components/schemas/SendMode'
+        timezone:
+          type: [string, 'null']
+        send_window_start:
+          type: [string, 'null']
+        send_window_end:
+          type: [string, 'null']
+        business_days_only:
+          type: boolean
+        open_tracking_enabled:
+          type: boolean
+        mailbox_ids:
+          type: array
+          items:
+            type: integer
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceStep'
+        editable:
+          type: boolean
+        launched_at:
+          $ref: '#/components/schemas/DateTime'
+        paused_at:
+          $ref: '#/components/schemas/DateTime'
+        completed_at:
+          $ref: '#/components/schemas/DateTime'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    CampaignEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Campaign'
+
+    CampaignSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        people_count:
+          type: integer
+        steps_count:
+          type: integer
+        mailboxes_count:
+          type: integer
+        sender_emails:
+          type: array
+          items:
+            type: string
+          description: Up to three attached mailbox addresses
+        sent_count:
+          type: integer
+        replies_count:
+          type: integer
+        interested_count:
+          type: integer
+        queued_count:
+          type: integer
+        bounced_count:
+          type: integer
+        unsubscribed_count:
+          type: integer
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    CampaignSummaryPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignSummary'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    LaunchBlocker:
+      type: object
+      required: [id, section, label, message]
+      properties:
+        id:
+          type: string
+        section:
+          type: string
+          enum: [audience, sequence, sending]
+        label:
+          type: string
+        message:
+          type: string
+
+    LaunchReadiness:
+      type: object
+      required: [ready, blockers]
+      properties:
+        ready:
+          type: boolean
+        blockers:
+          type: array
+          items:
+            $ref: '#/components/schemas/LaunchBlocker'
+
+    EnrollablePerson:
+      type: object
+      required: [id, name, email, account, eligibility, enrollable, reason]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        account:
+          type: [string, 'null']
+        eligibility:
+          type: string
+          enum: [Eligible, Suppressed]
+        enrollable:
+          type: boolean
+        reason:
+          type: [string, 'null']
+          description: "`Already in campaign`, `Suppressed`, or null when enrolable"
+
+    EnrollablePersonPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollablePerson'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    EnrollmentSkip:
+      type: object
+      required: [person_id, name, reason]
+      properties:
+        person_id:
+          type: [integer, 'null']
+        name:
+          type: string
+        reason:
+          type: string
+
+    EnrollmentResult:
+      type: object
+      required: [enrolled, skipped]
+      properties:
+        enrolled:
+          type: integer
+        skipped:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentSkip'
+        notice:
+          type: string
+          description: Present when people were enrolled into a completed campaign
+
+    CampaignRecipient:
+      type: object
+      properties:
+        id:
+          type: integer
+        person_id:
+          type: [integer, 'null']
+        name:
+          type: [string, 'null']
+        email:
+          type: [string, 'null']
+        company:
+          type: [string, 'null']
+        status:
+          $ref: '#/components/schemas/RecipientDisplayStatus'
+        lifecycle:
+          $ref: '#/components/schemas/RecipientStatus'
+        mailbox_id:
+          type: [integer, 'null']
+        mailbox:
+          type: [string, 'null']
+        first_sent_at:
+          $ref: '#/components/schemas/DateTime'
+        paused_at:
+          $ref: '#/components/schemas/DateTime'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    CampaignRecipientEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/CampaignRecipient'
+
+    CampaignRecipientPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignRecipient'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    Person:
+      type: object
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: [string, 'null']
+        first_name:
+          type: [string, 'null']
+        email:
+          type: string
+        job_title:
+          type: [string, 'null']
+        notes:
+          type: [string, 'null']
+        tags:
+          type: array
+          items:
+            type: string
+        source:
+          $ref: '#/components/schemas/PersonSource'
+        account_id:
+          type: [integer, 'null']
+        account:
+          type: [object, 'null']
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    PersonEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Person'
+
+    PersonPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        website:
+          type: [string, 'null']
+        domain:
+          type: [string, 'null']
+        notes:
+          type: [string, 'null']
+        tags:
+          type: array
+          items:
+            type: string
+        source:
+          $ref: '#/components/schemas/PersonSource'
+        people_count:
+          type: [integer, 'null']
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    AccountEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Account'
+
+    AccountPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    AuthorizationCodeGrant:
+      type: object
+      required: [grant_type, code, code_verifier, redirect_uri, device]
+      properties:
+        grant_type:
+          const: authorization_code
+        code:
+          type: string
+        code_verifier:
+          type: string
+          minLength: 43
+          maxLength: 128
+        redirect_uri:
+          type: string
+          example: outboss://auth/callback
+        device:
+          type: object
+          required: [install_id, name, platform]
+          properties:
+            install_id:
+              type: string
+              maxLength: 64
+            name:
+              type: string
+              maxLength: 120
+            platform:
+              const: ios
+            app_version:
+              type: [string, 'null']
+
+    RefreshTokenGrant:
+      type: object
+      required: [grant_type, refresh_token]
+      properties:
+        grant_type:
+          const: refresh_token
+        refresh_token:
+          type: string
+        workspace_id:
+          type: [integer, 'null']
+          description: Switch to this workspace. Omit to keep the current one.
+
+    DeviceTokensEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [token_type, access_token, expires_in, refresh_token, refresh_expires_in, workspace_id, device_session_id]
+          properties:
+            token_type:
+              const: Bearer
+            access_token:
+              type: string
+            expires_in:
+              type: integer
+            refresh_token:
+              type: string
+            refresh_expires_in:
+              type: integer
+            workspace_id:
+              type: integer
+            device_session_id:
+              type: string
+              format: uuid
+
+    WorkspaceMembershipSummary:
+      type: object
+      required: [id, name, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+
+    MeEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [user, workspace, workspaces, session, capabilities]
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                email:
+                  type: string
+                timezone:
+                  type: [string, 'null']
+            workspace:
+              $ref: '#/components/schemas/WorkspaceMembershipSummary'
+            workspaces:
+              type: array
+              items:
+                $ref: '#/components/schemas/WorkspaceMembershipSummary'
+            session:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum: [device, api_key]
+                id:
+                  type: [string, 'null']
+                scopes:
+                  type: array
+                  items:
+                    type: string
+                expires_at:
+                  $ref: '#/components/schemas/DateTime'
+            capabilities:
+              type: object
+              properties:
+                push:
+                  type: boolean
+
+    ServerEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [product, version, api, push, sign_in_url]
+          properties:
+            product:
+              type: string
+              enum: [outboss]
+            version:
+              type: string
+              description: Release label, or `dev` when none is configured.
+            api:
+              type: string
+              enum: [v1]
+            push:
+              type: boolean
+              description: Same as `/me` `capabilities.push`.
+            sign_in_url:
+              type: string
+              format: uri
+              description: Absolute URL of the web sign-in page to open with the PKCE query.
+
+    RegisterDevicePushRequest:
+      type: object
+      required: [apns_token, environment, notify]
+      properties:
+        apns_token:
+          type: string
+          pattern: '^[0-9a-fA-F]{64,200}$'
+        environment:
+          type: string
+          enum: [production, sandbox]
+        notify:
+          type: string
+          enum: [needs, leads, 'off']
+
+    DevicePushEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          properties:
+            push_available:
+              type: boolean
+            notify:
+              type: string
+              enum: [needs, leads, 'off']
+
+    ThreadPerson:
+      type: [object, 'null']
+      description: The person record linked to the thread, if any.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Full name, or the email address when there is no name.
+        title:
+          type: [string, 'null']
+          description: Job title from the person record.
+
+    ThreadAccount:
+      type: [object, 'null']
+      description: The account (company) linked to the thread, if any.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    ThreadSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        subject:
+          type: [string, 'null']
+        from:
+          type: [string, 'null']
+        participant_email:
+          type: [string, 'null']
+        snippet:
+          type: [string, 'null']
+        mailbox:
+          type: [string, 'null']
+        mailbox_id:
+          type: integer
+        participant_name:
+          type: [string, 'null']
+        unread:
+          type: boolean
+        has_inbound:
+          type: boolean
+        classification:
+          type: [string, 'null']
+        state:
+          type: [string, 'null']
+        campaign_recipient_id:
+          type: [integer, 'null']
+        campaign_id:
+          type: [integer, 'null']
+        campaign_name:
+          type: [string, 'null']
+        person:
+          $ref: '#/components/schemas/ThreadPerson'
+        account:
+          $ref: '#/components/schemas/ThreadAccount'
+        recipient_status:
+          type: [string, 'null']
+        last_message_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    ThreadMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        from:
+          type: [string, 'null']
+          description: Sender name, or the email address when there is no name.
+        from_name:
+          type: [string, 'null']
+        from_email:
+          type: [string, 'null']
+        to:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAddress'
+        cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAddress'
+        subject:
+          type: [string, 'null']
+        has_attachments:
+          type: boolean
+          description: Attachment contents are not stored yet.
+        direction:
+          $ref: '#/components/schemas/MessageDirection'
+        body:
+          type: [string, 'null']
+        html:
+          type: [string, 'null']
+        at:
+          $ref: '#/components/schemas/DateTime'
+
+    ThreadSummaryPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreadSummary'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ThreadSummaryCursorPage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreadSummary'
+        meta:
+          type: object
+          required: [per_page, next_cursor]
+          properties:
+            per_page:
+              type: integer
+            next_cursor:
+              type: [string, 'null']
+            prev_cursor:
+              type: [string, 'null']
+
+    ThreadSummaryEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ThreadSummary'
+
+    ThreadChange:
+      type: object
+      required: [id, visible]
+      description: A full ThreadSummary when `visible` is true; otherwise only `id`, `visible` and `updated_at`.
+      allOf:
+        - $ref: '#/components/schemas/ThreadSummary'
+      properties:
+        visible:
+          type: boolean
+
+    ThreadChanges:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreadChange'
+        meta:
+          type: object
+          required: [next_since, has_more]
+          properties:
+            next_since:
+              type: string
+            has_more:
+              type: boolean
+
+    InboxCountsEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [folders, unread, badge]
+          properties:
+            folders:
+              type: object
+              additionalProperties:
+                type: integer
+              description: Keys are the twelve Unibox folders (`needs`, `leads`, `all_replies`, `open`, `ooo`, `delivery`, `opt_outs`, `problems`, `all_open`, `done`, `closed`, `sent`).
+            unread:
+              type: object
+              required: [needs, leads, all_open]
+              properties:
+                needs:
+                  type: integer
+                leads:
+                  type: integer
+                all_open:
+                  type: integer
+            badge:
+              type: integer
+
+    EmailAddress:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+        name:
+          type: [string, 'null']
+
+    SendAttemptSummary:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+
+    ThreadDetail:
+      allOf:
+        - $ref: '#/components/schemas/ThreadSummary'
+        - type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/ThreadMessage'
+
+    ThreadDetailEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ThreadDetail'
+
+    ThreadReplyResult:
+      type: object
+      required: [sent, thread_id, send_attempt_id, data]
+      properties:
+        sent:
+          type: boolean
+        thread_id:
+          type: integer
+        send_attempt_id:
+          type: integer
+        data:
+          type: object
+          properties:
+            thread:
+              $ref: '#/components/schemas/ThreadSummary'
+            send_attempt:
+              $ref: '#/components/schemas/SendAttemptSummary'
+
+    ThreadDoneEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, state]
+          properties:
+            id:
+              type: integer
+            state:
+              $ref: '#/components/schemas/ThreadLocalState'
+
+    ThreadClassificationResult:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, action]
+          properties:
+            id:
+              type: integer
+            action:
+              type: string
+        notice:
+          type: [string, 'null']
+
+    ComposeMessageResult:
+      type: object
+      required: [sent, thread_id, message_id, send_attempt_id]
+      properties:
+        sent:
+          type: boolean
+        thread_id:
+          type: [integer, 'null']
+        message_id:
+          type: [integer, 'null']
+        send_attempt_id:
+          type: integer
+        data:
+          type: object
+          properties:
+            thread:
+              oneOf:
+                - $ref: '#/components/schemas/ThreadSummary'
+                - type: 'null'
+            send_attempt:
+              $ref: '#/components/schemas/SendAttemptSummary'
+
+    SentFlag:
+      type: object
+      required: [sent]
+      properties:
+        sent:
+          type: boolean
+
+    MailboxSync:
+      type: object
+      properties:
+        phase:
+          type: string
+          enum: [idle, queued, syncing, failed]
+        percent:
+          type: [integer, 'null']
+        phase_label:
+          type: string
+        detail:
+          type: string
+        button_label:
+          type: string
+        last_sync_label:
+          type: string
+        scope_label:
+          type: string
+        active_scope:
+          type: [string, 'null']
+          enum: [inbox, sent, null]
+
+    Mailbox:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        display_name:
+          type: [string, 'null']
+        provider:
+          type: [string, 'null']
+        status:
+          $ref: '#/components/schemas/ConnectionStatus'
+        sync:
+          type: [object, 'null']
+          allOf:
+            - $ref: '#/components/schemas/MailboxSync'
+        error:
+          type: [string, 'null']
+        effective_reply_identity:
+          description: The address replies and new messages are sent from; null while the sender identity needs repair.
+          oneOf:
+            - type: object
+              properties:
+                key:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: [string, 'null']
+            - type: 'null'
+        daily_send_cap:
+          type: [integer, 'null']
+        sending_paused_at:
+          $ref: '#/components/schemas/DateTime'
+        sending_paused_reason:
+          type: [string, 'null']
+          enum: [bounce_threshold, provider_error_threshold]
+        last_synced_at:
+          $ref: '#/components/schemas/DateTime'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        updated_at:
+          $ref: '#/components/schemas/DateTime'
+
+    MailboxEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Mailbox'
+
+    MailboxPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mailbox'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    MailboxSyncQueued:
+      type: object
+      required: [queued, data]
+      properties:
+        queued:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Mailbox'
+
+    DomainAuthCheck:
+      type: object
+      required: [domain, spf, dmarc, dkim]
+      properties:
+        domain:
+          type: string
+        spf:
+          $ref: '#/components/schemas/DomainAuthResult'
+        dmarc:
+          $ref: '#/components/schemas/DomainAuthResult'
+        dkim:
+          $ref: '#/components/schemas/DomainAuthResult'
+
+    SuppressionEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        reason:
+          $ref: '#/components/schemas/SuppressionReason'
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+
+    SuppressionEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/SuppressionEntry'
+
+    SuppressionPage:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SuppressionEntry'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    EnrollmentExportRecord:
+      type: object
+      additionalProperties: true
+      properties:
+        campaign:
+          type: [string, 'null']
+        campaign_status:
+          type: [string, 'null']
+        email:
+          type: [string, 'null']
+        full_name:
+          type: [string, 'null']
+        first_name:
+          type: [string, 'null']
+        company:
+          type: [string, 'null']
+        email_domain:
+          type: [string, 'null']
+        person_id:
+          type: [integer, 'null']
+        account_id:
+          type: [integer, 'null']
+        mailbox:
+          type: [string, 'null']
+        sequence_version:
+          type: [integer, 'null']
+        status:
+          type: [string, 'null']
+        stop_reason:
+          type: [string, 'null']
+        enrolled_at:
+          $ref: '#/components/schemas/DateTime'
+        first_sent_at:
+          $ref: '#/components/schemas/DateTime'
+        last_sent_at:
+          $ref: '#/components/schemas/DateTime'
+        replied_at:
+          $ref: '#/components/schemas/DateTime'
+        stopped_at:
+          $ref: '#/components/schemas/DateTime'
+        paused_at:
+          $ref: '#/components/schemas/DateTime'
+        removed_at:
+          $ref: '#/components/schemas/DateTime'
+
+    EnrollmentExport:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentExportRecord'
+        meta:
+          $ref: '#/components/schemas/ExportMeta'
+
+    SuppressionExportRecord:
+      type: object
+      properties:
+        email:
+          type: [string, 'null']
+        reason:
+          type: [string, 'null']
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+
+    SuppressionExport:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SuppressionExportRecord'
+        meta:
+          $ref: '#/components/schemas/ExportMeta'
+
+    CampaignOutcomeExportRecord:
+      type: object
+      properties:
+        campaign:
+          type: [string, 'null']
+        status:
+          type: [string, 'null']
+        created_at:
+          $ref: '#/components/schemas/DateTime'
+        launched_at:
+          $ref: '#/components/schemas/DateTime'
+        completed_at:
+          $ref: '#/components/schemas/DateTime'
+        queued:
+          type: integer
+        sent:
+          type: integer
+        replied:
+          type: integer
+        interested:
+          type: integer
+        bounced:
+          type: integer
+        unsubscribed:
+          type: integer
+        needs_review:
+          type: integer
+
+    CampaignOutcomeExport:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignOutcomeExportRecord'
+        meta:
+          $ref: '#/components/schemas/ExportMeta'
+
+    ExportMeta:
+      type: object
+      required: [limit, truncated, full_export_format]
+      properties:
+        limit:
+          type: integer
+          example: 1000
+        truncated:
+          type: boolean
+        full_export_format:
+          type: string
+          const: csv

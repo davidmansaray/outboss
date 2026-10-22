@@ -1,0 +1,45 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name outboss.example.test;
+    server_tokens off;
+
+    root /srv/outboss/current/public;
+    index index.php;
+    charset utf-8;
+    client_max_body_size 20m;
+
+    access_log /var/log/nginx/outboss.example.test-access.log;
+    error_log /var/log/nginx/outboss.example.test-error.log warn;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/_letsencrypt;
+        default_type text/plain;
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico {
+        access_log off;
+        log_not_found off;
+    }
+
+    location = /robots.txt {
+        access_log off;
+        log_not_found off;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.4-fpm-outboss.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}

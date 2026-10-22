@@ -1,0 +1,463 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Scheduled, App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Queued, App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Deferred, App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Failed\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Domain/Campaigns/Services/AcquireRecipientSendLease.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Domain/Campaigns/Services/AcquireRecipientSendLease.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Domain/Campaigns/Services/LaunchCampaignService.php
+
+		-
+			message: '#^Cannot call method isTerminal\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Domain/Campaigns/Services/PauseResumeRecipient.php
+
+		-
+			message: '#^Property App\\Domain\\Campaigns\\Services\\PauseResumeRecipient\:\:\$windows is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Domain/Campaigns/Services/PauseResumeRecipient.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Domain\\Campaigns\\Enums\\RecipientStatus\:\:Paused will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Domain/Campaigns/Services/PauseResumeRecipient.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Domain\\Campaigns\\Enums\\RecipientStatus\:\:Paused will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Domain/Campaigns/Services/PauseResumeRecipient.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Domain/Campaigns/Services/PauseResumeRecipient.php
+
+		-
+			message: '#^Method App\\Domain\\Campaigns\\Services\\PreviewRecipientImport\:\:sample\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Domain/Campaigns/Services/PreviewRecipientImport.php
+
+		-
+			message: '#^Parameter \#2 \$data of function hash expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Campaigns/Services/PreviewRecipientImport.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>activeSteps" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Domain/Campaigns/Services/PublishSequenceVersion.php
+
+		-
+			message: '#^Method App\\Domain\\Campaigns\\Services\\SequenceStepEditor\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Domain/Campaigns/Services/SequenceStepEditor.php
+
+		-
+			message: '#^Called ''Model\:\:make\(\)'' which performs unnecessary work, use ''new Model\(\)''\.$#'
+			identifier: larastan.noModelMake
+			count: 1
+			path: app/Domain/Campaigns/Services/TestSequenceStep.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>remoteThreadId" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Domain/Mail/Providers/FakeMailProvider.php
+
+		-
+			message: '#^Parameter \$messages of class App\\Domain\\Mail\\DTOs\\RemoteMessagePage constructor expects list\<App\\Domain\\Mail\\DTOs\\RemoteMessage\>, array\<App\\Domain\\Mail\\DTOs\\RemoteMessage\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Mail/Providers/GmailProvider.php
+
+		-
+			message: '#^Parameter \$messages of class App\\Domain\\Mail\\DTOs\\RemoteMessagePage constructor expects list\<App\\Domain\\Mail\\DTOs\\RemoteMessage\>, array\<int, App\\Domain\\Mail\\DTOs\\RemoteMessage\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Mail/Providers/GmailProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 4
+			path: app/Domain/Mail/Providers/GmailProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 4
+			path: app/Domain/Mail/Providers/GmailProvider.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Domain/Mail/Providers/MicrosoftProvider.php
+
+		-
+			message: '#^Parameter \$messages of class App\\Domain\\Mail\\DTOs\\RemoteMessagePage constructor expects list\<App\\Domain\\Mail\\DTOs\\RemoteMessage\>, array\<App\\Domain\\Mail\\DTOs\\RemoteMessage\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Mail/Providers/MicrosoftProvider.php
+
+		-
+			message: '#^Parameter \$to of class App\\Domain\\Mail\\DTOs\\RemoteMessage constructor expects list\<array\{email\: string, name\?\: string\|null\}\>, array\<array\{email\: mixed\}\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Mail/Providers/MicrosoftProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Domain/Mail/Providers/MicrosoftProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Domain/Mail/Providers/MicrosoftProvider.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Cannot call method isTerminal\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Match arm comparison between string\|null and App\\Domain\\Mail\\Enums\\ThreadClassification\:\:Bounce is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Match arm comparison between string\|null and App\\Domain\\Mail\\Enums\\ThreadClassification\:\:Human is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Match arm comparison between string\|null and App\\Domain\\Mail\\Enums\\ThreadClassification\:\:OutOfOffice is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Match arm comparison between string\|null and App\\Domain\\Mail\\Enums\\ThreadClassification\:\:Unsubscribe is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string\|null and App\\Domain\\Mail\\Enums\\BounceSubtype\:\:Hard will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email_normalized" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Domain/Mail/Services/ApplyInboundCampaignEffects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OAuthAttempt\:\:\$raw_state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Mail/Services/ConnectMailboxService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Domain\\Mail\\Enums\\OAuthIntent\:\:ReconnectMailbox will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Domain/Mail/Services/ConnectMailboxService.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Queued, App\\Domain\\Mail\\Enums\\SendAttemptStatus\:\:Scheduled\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Domain/Mail/Services/PublishOutboxEvents.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Domain/Mail/Services/PublishOutboxEvents.php
+
+		-
+			message: '#^Offset ''send_attempt_id'' on string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Domain/Mail/Services/PublishOutboxEvents.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$first_opened_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domain/Mail/Services/RecordOpenEvent.php
+
+		-
+			message: '#^Parameter \#2 \$current of method App\\Domain\\Mail\\Services\\UpsertRemoteMessage\:\:localState\(\) expects App\\Domain\\Mail\\Enums\\ThreadLocalState, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Domain/Mail/Services/UpsertRemoteMessage.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: app/Http/Requests/CommitRecipientImportRequest.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Models\\User\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Requests/CommitRecipientImportRequest.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Domain\\Campaigns\\Enums\\RecipientStatus\:\:Paused, App\\Domain\\Campaigns\\Enums\\RecipientStatus\:\:BlockedMailbox\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Models/CampaignRecipient.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Models/CampaignRecipient.php
+
+		-
+			message: '#^Cannot call method isTerminal\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/CampaignRecipient.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Domain\\Campaigns\\Enums\\RecipientStatus\:\:Completed will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/CampaignRecipient.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Domain\\Mail\\Enums\\ConnectionStatus\:\:Connected will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/Mailbox.php
+
+		-
+			message: '#^Method App\\Models\\MailboxSyncState\:\:mailbox\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MailboxSyncState.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:events\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:mailbox\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:recipient\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:replyTo\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:sendAttempts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:sequenceStep\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\Message\:\:thread\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Message.php
+
+		-
+			message: '#^Method App\\Models\\MessageEvent\:\:message\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MessageEvent.php
+
+		-
+			message: '#^Method App\\Models\\MessageEvent\:\:recipient\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MessageEvent.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/OAuthAttempt.php
+
+		-
+			message: '#^Method App\\Models\\RecipientImport\:\:campaign\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/RecipientImport.php
+
+		-
+			message: '#^Method App\\Models\\RecipientImport\:\:rows\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/RecipientImport.php
+
+		-
+			message: '#^Method App\\Models\\RecipientImport\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/RecipientImport.php
+
+		-
+			message: '#^Method App\\Models\\RecipientImportRow\:\:import\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/RecipientImportRow.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:mailbox\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:message\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:recipient\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:resolutions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:sequenceStep\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttempt\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttempt.php
+
+		-
+			message: '#^Method App\\Models\\SendAttemptResolution\:\:attempt\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SendAttemptResolution.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Domain\\Campaigns\\Enums\\SequenceVersionStatus\:\:Draft will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Models/SequenceVersion.php
+
+		-
+			message: '#^Method App\\Models\\SuppressionEntry\:\:sourceMessage\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SuppressionEntry.php
+
+		-
+			message: '#^Method App\\Models\\SuppressionEntry\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/SuppressionEntry.php
+
+		-
+			message: '#^Property App\\Models\\CampaignRecipient\:\:\$mailbox_id \(int\<0, max\>\) does not accept int\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: database/factories/CampaignRecipientFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Thread\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Thread\>\:\:\$mailbox_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/MessageFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Mailbox\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Mailbox\>\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/SendAttemptFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Message\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Message\>\:\:\$mailbox_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/SendAttemptFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Mailbox\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Mailbox\>\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/ThreadFactory.php

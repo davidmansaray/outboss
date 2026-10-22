@@ -1,0 +1,24 @@
+{
+    "schema_version": "message_drafting_evaluation_approval_v1",
+    "dataset_version": "v1",
+    "status": "pending_owner_approval",
+    "case_set_hash": "21fcbcc99671dfbb0908720f8189f049cd9ef9a94ca749dfcaf21944bde8b2bc",
+    "approved_by": null,
+    "approved_at": null,
+    "thresholds": {
+        "abstention_recall": null,
+        "human_escalation_rate": null,
+        "offer_compliance_precision": null,
+        "schema_validity": null,
+        "supported_claim_precision": null,
+        "unsafe_or_fabricated_contact_count": null
+    },
+    "target_provider_evidence": {
+        "status": "missing",
+        "evidence_id": null,
+        "provider": null,
+        "model": null,
+        "evaluated_at": null,
+        "case_set_hash": null
+    }
+}

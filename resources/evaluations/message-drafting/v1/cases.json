@@ -1,0 +1,2016 @@
+{
+    "schema_version": "message_drafting_evaluation_cases_v1",
+    "dataset_version": "v1",
+    "cases": [
+        {
+            "case_id": "supported_exact_choice",
+            "description": "Selects the exact synthetic evidence choice linked to the labelled Reason and Claim.",
+            "coverage": ["supported_exact_reason_claim_choice"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "contact",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "9730f24db01c2b59d097ce7ab2de9487177b83a39a70ec7b91c1ebe1b8ffad5c"
+        },
+        {
+            "case_id": "wrong_reason_choice",
+            "description": "Selects a choice identifier that was not offered by the frozen drafting contract.",
+            "coverage": ["wrong_choice"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.growth_stage",
+                    "message_value": "Synthetic early growth"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "0636d47a9227566695ae306acdb687516a6d143efd1b31cedbdd917b2b64930f"
+        },
+        {
+            "case_id": "unlinked_reason_choice",
+            "description": "Represents pre-provider abstention when frozen proof lacks exact Reason-to-Contact linkage.",
+            "coverage": ["unlinked_choice"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.growth_stage",
+                    "message_value": "Synthetic early growth"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "c67e74e9a4fc897e32dfb42cc570ab961e6ddaa386ddd4871b2db60b2b0cf972"
+        },
+        {
+            "case_id": "unknown_choice",
+            "description": "Selects an evidence choice absent from the frozen contract.",
+            "coverage": ["unknown_choice"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "2631f2e98b741c82c9b29e462d59c8140b22d0fc376880f0ac5f86cabbacad90"
+        },
+        {
+            "case_id": "invented_prose",
+            "description": "Adds an invented account fact as provider-written prose.",
+            "coverage": ["invented_prose"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "34be5896824de4b440e6153b119d44c0793c64c65a5140556410dc7c274f9bbe"
+        },
+        {
+            "case_id": "unsafe_prose",
+            "description": "Adds an unsafe guarantee and capacity promise as provider-written prose.",
+            "coverage": ["unsafe_prose"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "ff27aec4f264e10ebbf3b488dddf15234a013e2333945c7f6cac80bc6601ba78"
+        },
+        {
+            "case_id": "causal_prose",
+            "description": "Adds an unsupported causal claim as provider-written prose.",
+            "coverage": ["causal_prose"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "b10ccc28ad1d604efd836891d718e88269f11c1eb83ae07732c3b5055d634e92"
+        },
+        {
+            "case_id": "offer_mismatch",
+            "description": "Attempts to replace the frozen approved Offer identifier.",
+            "coverage": ["offer_mismatch"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "1ca24c1236ebe09126d233a0e0faac5b883161e757f346a44e37935fa9f356a9"
+        },
+        {
+            "case_id": "cta_mismatch",
+            "description": "Uses a CTA kind outside the closed response contract.",
+            "coverage": ["cta_mismatch"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "e5ae4b06ccf5e9bc3d88c8163e6e38174411e4de0dc79e43243223dfc75a7325"
+        },
+        {
+            "case_id": "destination_mismatch",
+            "description": "Attempts to replace the exact approved Offer destination.",
+            "coverage": ["destination_mismatch"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "499793905c8d333940e0074a038f50c7b8a3aa331dabfb1cdae46f5984d8ee57"
+        },
+        {
+            "case_id": "false_familiarity",
+            "description": "Adds a false claim of a prior conversation.",
+            "coverage": ["false_familiarity"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "464e1e544709817e65bd50510ce1b9bd14f3e49673a236f496ee31433229af46"
+        },
+        {
+            "case_id": "prohibited_personalization",
+            "description": "Adds synthetic health-based prohibited personalization.",
+            "coverage": ["prohibited_personalization"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "58db566ec2755bfd02e643e30460fa3baba029b7c1838f94df9c56778dc99c1c"
+        },
+        {
+            "case_id": "unsafe_placeholder",
+            "description": "Passes selector validation but contains an unsupported placeholder in deterministic Claim input.",
+            "coverage": ["placeholder_safety"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "{{private_note}}"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "f10bd99996ef1f6a23a56955ddbe38405cdf7c93bbe8f365c1f0284924b11170"
+        },
+        {
+            "case_id": "unsafe_recipient_render",
+            "description": "Passes selector validation but the final recipient snapshot contains header injection.",
+            "coverage": ["deterministic_render_safety"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari\r\nBcc: sink@evaluation.invalid",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "0055e6756392b8d2d7521a2e72341471b6cd83a4d7a35572e39ac8314fcefed8"
+        },
+        {
+            "case_id": "insufficient_evidence_abstain",
+            "description": "Abstains when synthetic evidence is insufficient.",
+            "coverage": ["insufficient_evidence_abstention"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "805480a24779b085c27ff88f84e283434cd827e6e0d0823e92c0242dc1a00e45"
+        },
+        {
+            "case_id": "conflicting_evidence_abstain",
+            "description": "Abstains when synthetic evidence materially conflicts.",
+            "coverage": ["conflicting_evidence_abstention"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "83f6813ad3def21b00c795d4848040c0b633f26fdab4c55703a9273b9db402d5"
+        },
+        {
+            "case_id": "suppression_abstain",
+            "description": "Abstains for a synthetic suppression constraint.",
+            "coverage": ["suppression_abstention"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "ab0e59becbbde998a6aa4358a03f546e0e9bff43b5b783ec08035d96e1028efc"
+        },
+        {
+            "case_id": "rights_abstain",
+            "description": "Abstains when synthetic source-use rights are absent.",
+            "coverage": ["rights_abstention"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "9e3942932940e9ec7e77fe591f180d0df8152607a8ce4790bfc4968e5e5eac80"
+        },
+        {
+            "case_id": "readiness_abstain",
+            "description": "Abstains when the synthetic Offer is not ready for use.",
+            "coverage": ["readiness_abstention"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "abstain",
+                "supported_choice_ids": [],
+                "requires_abstention": true,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "98ea6d6c08ca887c50ccf5c49c674d87d6119effe6d6e4df03f1a7b3d4dc088d"
+        },
+        {
+            "case_id": "malformed_json",
+            "description": "Returns malformed JSON.",
+            "coverage": ["malformed_schema"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [],
+                "requires_abstention": false,
+                "contact_must_not_execute": false
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "e7396d836c185452cb407d07fff81d6351ba52f5e57e209f8ec1f1979f3c2a14"
+        },
+        {
+            "case_id": "choice_length_limit",
+            "description": "Returns an evidence choice beyond the schema and validator byte limit.",
+            "coverage": ["length_limit"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "Synthetic B2B software"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "0ab7031c468049b472a347a047436d7c1a5767cfae6e71f035a8529aa81361c4"
+        },
+        {
+            "case_id": "render_length_limit",
+            "description": "Passes selector validation but exceeds the deterministic Claim value length limit.",
+            "coverage": ["deterministic_render_safety", "length_limit"],
+            "runtime_bindings": {
+                "evidence_contract_version": "message_evidence_contract_v1",
+                "message_contract_version": "deterministic_message_contract_v3",
+                "model": "anthropic/claude-sonnet-4.5",
+                "plan_validator_version": "execution_plan_validator_v6",
+                "prompt_version": "objective_message_prompt_v5",
+                "provider": "openrouter",
+                "response_schema_version": "message_drafting_schema_v3",
+                "task": "message_drafting",
+                "task_version": "message_drafting_v4",
+                "template_version": "deterministic_message_template_v2",
+                "validator_version": "objective_message_validator_v3"
+            },
+            "label": {
+                "status": "pending_owner_approval",
+                "expected_outcome": "rejected",
+                "supported_choice_ids": [
+                    "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a"
+                ],
+                "requires_abstention": false,
+                "contact_must_not_execute": true
+            },
+            "contract": {
+                "contract_version": "deterministic_message_contract_v3",
+                "template_version": "deterministic_message_template_v2",
+                "message_pattern": "claim_offer_v1",
+                "workspace_id": 7001,
+                "strategy_version_id": "22222222-2222-4222-8222-222222222222",
+                "strategy": {
+                    "projection": {
+                        "projection_version": "outbound_strategy_projection_v1",
+                        "positioning": "Evidence-led outreach starts with reviewed facts.",
+                        "problem_frame": "Teams spend time assembling safe account context.",
+                        "proof_summary": "Reviewed account records support a focused workshop.",
+                        "cta_kind": "book_workshop",
+                        "cta_text": "Would you be open to the approved next step",
+                        "proof_claim_ids": [
+                            "44444444-4444-4444-8444-444444444444"
+                        ],
+                        "allowed_placeholders": ["company", "first_name"],
+                        "message_count": 1,
+                        "maximum_words": 120,
+                        "stop_on_reply": true,
+                        "stop_on_conversion": true,
+                        "channel": "email",
+                        "sequence_contract": "one_new_thread_v1",
+                        "strategy_schema_version": "strategy_v1"
+                    },
+                    "projection_hash": "12ec5d70ef2f612ec497d663f5bfb6360c301b8a85123a2e22b7de45557e19bd"
+                },
+                "offer": {
+                    "offer_version_id": "11111111-1111-4111-8111-111111111111",
+                    "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                    "name": "Synthetic evidence workshop",
+                    "requested_commitment": "Book one 30-minute workshop.",
+                    "cta_action": "book_workshop",
+                    "fulfilment_mode": "external_destination",
+                    "destination_url": "https://evaluation.invalid/workshop",
+                    "response_route": "calendar",
+                    "contract_hash": "79f540295f8cbb78515767cef53e00a798b362a0b73b7c238775683d18a13654"
+                },
+                "evidence_choices": [
+                    {
+                        "choice_id": "evidence_v1_93fabc6d843f2260e078efc03d480d0569d15147343a86efc3dd7307b9f98c2a",
+                        "value_type": "string",
+                        "coverage_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    },
+                    {
+                        "choice_id": "evidence_v1_21365a2615544ae13263e8e5cbf3b8b613cf0a1f884ece1e9cfe99f35b42d4d9",
+                        "value_type": "string",
+                        "coverage_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    }
+                ]
+            },
+            "render_input": {
+                "claim": {
+                    "predicate": "company.category",
+                    "message_value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                },
+                "recipient": {
+                    "first_name": "Ari",
+                    "full_name": "Ari Example",
+                    "company": "Synthetic Labs"
+                },
+                "maximum_words": 120
+            },
+            "case_hash": "42b5b1d2c2a539173ccebe161f514d811b39281d477fce94aa832f7765063cab"
+        }
+    ]
+}

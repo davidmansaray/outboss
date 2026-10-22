@@ -1,0 +1,20 @@
+{
+    "schema_version": "message_drafting_evaluation_manifest_v1",
+    "dataset_version": "v1",
+    "description": "Synthetic, non-customer S3 message-drafting evaluation corpus. Labels remain pending owner approval.",
+    "case_count": 22,
+    "case_set_hash": "21fcbcc99671dfbb0908720f8189f049cd9ef9a94ca749dfcaf21944bde8b2bc",
+    "runtime_bindings": {
+        "evidence_contract_version": "message_evidence_contract_v1",
+        "message_contract_version": "deterministic_message_contract_v3",
+        "model": "anthropic/claude-sonnet-4.5",
+        "plan_validator_version": "execution_plan_validator_v6",
+        "prompt_version": "objective_message_prompt_v5",
+        "provider": "openrouter",
+        "response_schema_version": "message_drafting_schema_v3",
+        "task": "message_drafting",
+        "task_version": "message_drafting_v4",
+        "template_version": "deterministic_message_template_v2",
+        "validator_version": "objective_message_validator_v3"
+    }
+}

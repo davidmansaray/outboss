@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ComposeMessageRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user() !== null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'mailbox_id' => ['required', 'integer'],
+            'to' => ['required', 'email'],
+            'subject' => ['required', 'string'],
+            'body' => ['required', 'string'],
+            'client_operation_id' => ['required', 'uuid'],
+        ];
+    }
+}

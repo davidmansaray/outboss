@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 0 311 220" role="img" aria-labelledby="title desc">
+  <title id="title">OutBoss reverse OB mark</title>
+  <desc id="desc">White faceted O and B initials for dark backgrounds.</desc>
+  <g fill="#FFFFFF" fill-rule="evenodd">
+    <path d="M83 11q2 0 5 1l56 26q5 2 5 8v128q0 4-4 6l-56 28q-3 2-6 0L4 181q-4-2-4-7V46q0-5 4-7l75-27q3-1 5 0Zm-1 41q-2 0-5 1L40 66q-3 2-3 6v76q0 4 3 6l42 15q3 1 6-1l11-6q3-2 3-6V72q0-4-3-6L85 53q-2-1-3-1Z"/>
+    <path d="M171 34 261 11q3-1 6 1l26 12q4 2 6 6 2 4 2 9v41q0 13-12 21l-9 8 9 8q12 8 12 21v30q0 11-8 17l-24 22q-3 3-7 2l-91-20q-3-1-3-5V38q0-3 3-4Zm32 23v33l58-2q5 0 5-5V59q0-5-5-5Zm0 67v32l58 6q5 0 5-5v-23q0-5-5-5Z"/>
+  </g>
+</svg>
